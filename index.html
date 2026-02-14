@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>منصة الاختبارات النيون</title>
+    <style>
+        :root {
+            --neon-purple: #bc13fe;
+            --neon-blue: #08f7fe;
+            --correct: #39ff14;
+            --wrong: #ff3131;
+            --bg: #0d0221;
+        }
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1, h2 { text-shadow: 0 0 10px var(--neon-purple); }
+        .btn {
+            background: transparent;
+            color: white;
+            border: 2px solid var(--neon-blue);
+            padding: 15px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+            box-shadow: inset 0 0 5px var(--neon-blue);
+        }
+        .btn:hover { box-shadow: 0 0 15px var(--neon-blue); background: rgba(8, 247, 254, 0.1); }
+        .hidden { display: none; }
+        
+        /* ألوان الإجابات */
+        .correct { border-color: var(--correct) !important; box-shadow: 0 0 20px var(--correct) !important; background: rgba(57, 255, 20, 0.1) !important; }
+        .wrong { border-color: var(--wrong) !important; box-shadow: 0 0 20px var(--wrong) !important; background: rgba(255, 49, 49, 0.1) !important; }
+        .selected-pers { border-color: var(--correct) !important; box-shadow: 0 0 20px var(--correct) !important; }
+
+        .report { text-align: right; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="main-view">
+        <h1>الاختبارات الذكية</h1>
+        <p>اختر نوع الاختبار العلمي:</p>
+        <button class="btn" onclick="startTest('iq')">اختبار الذكاء (IQ)</button>
+        <button class="btn" onclick="startTest('pers')">اختبار الشخصية</button>
+    </div>
+
+    <div class="card hidden" id="quiz-view">
+        <h2 id="question-text"></h2>
+        <div id="options-container"></div>
+        <p>السؤال: <span id="q-number">1</span></p>
+    </div>
+
+    <div class="card hidden" id="result-view">
+        <h2>النتيجة النهائية</h2>
+        <h1 id="score-display"></h1>
+        <div id="report-container"></div>
+        <button class="btn" onclick="location.reload()" style="border-color: var(--neon-purple);">العودة للرئيسية</button>
+    </div>
+
+    <script>
+        const questionsBank = {
+            iq: [
+                { q: "ما هو الرقم المكمل: 3، 6، 12، ...؟", options: ["18", "24", "30"], correct: 1 },
+                { q: "إذا كان كل 'أ' هو 'ب'، وكل 'ب' هو 'ج'، فهل كل 'أ' هو 'ج'؟", options: ["نعم دائماً", "لا أبداً", "ليس بالضرورة"], correct: 0 }
+            ],
+            pers: [
+                { q: "عندما تواجه مشكلة كبيرة، كيف تتصرف؟", options: ["أحللها بمنطق وهدوء", "أتبع حدسي ومشاعري", "أطلب نصيحة المقربين"], analysis: "شخصية عقلانية" },
+                { q: "في التجمعات الاجتماعية، أنت غالباً:", options: ["المتحدث الذي يقود الجلسة", "المستمع الذي يراقب بصمت", "المشارك بشكل معتدل"], analysis: "شخصية اجتماعية" }
+            ]
+        };
+
+        let currentType = "";
+        let currentIdx = 0;
+        let score = 0;
+        let wrongAnswers = [];
+
+        function startTest(type) {
+            currentType = type;
+            currentIdx = 0;
+            score = 0;
+            wrongAnswers = [];
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('quiz-view').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            let qData = questionsBank[currentType][currentIdx];
+            document.getElementById('question-text').innerText = qData.q;
+            document.getElementById('q-number').innerText = currentIdx + 1;
+            
+            let optionsDiv = document.getElementById('options-container');
+            optionsDiv.innerHTML = "";
+            
+            qData.options.forEach((opt, index) => {
+                let button = document.createElement('button');
+                button.className = 'btn';
+                button.innerText = opt;
+                button.onclick = () => handleAnswer(index, button);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function handleAnswer(choice, btn) {
+            // تعطيل باقي الأزرار لمنع الضغط المتكرر
+            const buttons = document.querySelectorAll('.option-btn, .btn');
+            buttons.forEach(b => b.style.pointerEvents = 'none');
+
+            let qData = questionsBank[currentType][currentIdx];
+
+            if (currentType === 'iq') {
+                if (choice === qData.correct) {
+                    btn.classList.add('correct');
+                    score++;
+                } else {
+                    btn.classList.add('wrong');
+                    wrongAnswers.push({ q: qData.q, correctAns: qData.options[qData.correct] });
+                }
+            } else {
+                // اختبار شخصية - ينور أخضر بس
+                btn.classList.add('selected-pers');
+            }
+
+            setTimeout(() => {
+                currentIdx++;
+                if (currentIdx < questionsBank[currentType].length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 800);
+        }
+
+        function showResults() {
+            document.getElementById('quiz-view').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            
+            let scoreText = "";
+            let reportHtml = "";
+
+            if (currentType === 'iq') {
+                scoreText = `نسبة ذكائك: ${(score / questionsBank.iq.length) * 100}%`;
+                if (wrongAnswers.length > 0) {
+                    reportHtml = "<h3>مراجعة الأخطاء:</h3>";
+                    wrongAnswers.forEach(item => {
+                        reportHtml += `<div class="report">❌ ${item.q}<br><span style="color:var(--correct)">الإجابة الصح: ${item.correctAns}</span></div>`;
+                    });
+                }
+                reportHtml += "<p>استمر في المحاولة، العقل يتطور بالتدريب!</p>";
+            } else {
+                scoreText = "تم تحليل شخصيتك بنجاح";
+                reportHtml = "بناءً على اختياراتك، أنت تمتلك سمات شخصية متوازنة تميل إلى التفكير المنظم والقدرة على التأقلم.";
+            }
+
+            document.getElementById('score-display').innerText = scoreText;
+            document.getElementById('report-container').innerHTML = reportHtml;
+        }
+    </script>
+</body>
+</html>
