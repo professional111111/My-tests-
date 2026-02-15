@@ -84,6 +84,8 @@
 </head>
 <body>
 
+    <audio id="correctAudio" src="data:audio/mpeg;base64,BASE64_HERE"></audio>
+
     <div class="card" id="name-view">
         <svg class="brain-logo" viewBox="0 0 64 64">
             <g stroke="#08f7fe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
@@ -168,6 +170,52 @@
         <button class="btn" onclick="showTraitsResults()">تحليل الإجابات</button>
     </div>
 
+    <div class="card hidden" id="deep-psy-q4">
+        <h2 style="color: var(--neon-blue);">اختبار المواقف والمشاعر</h2>
+        <p>تخيل المواقف التالية ودوّن مشاعرك أو تصرفك باختصار:</p>
+        <input type="text" id="psy-sea-v3" placeholder="أنت أمام البحر، اوصف مشاعرك..">
+        <input type="text" id="psy-forest" placeholder="أنت في الغابة، ما شعورك؟">
+        <input type="text" id="psy-seagull" placeholder="رأيت طائر النورس، ما مشاعرك؟">
+        <input type="text" id="psy-horses" placeholder="ما هي نظرتك تجاه الخيول؟">
+        <input type="text" id="psy-wall-v3" placeholder="اعترض طريقك جدار، ماذا ستفعل؟">
+        <input type="text" id="psy-jar" placeholder="تائه بالصحراء ووجدت جرة، ماذا ستفعل؟">
+        <input type="text" id="psy-house" placeholder="وجدت بيتاً مجهولاً بالغابة، كيف ستتصرف؟">
+        <input type="text" id="psy-fog" placeholder="أنت وسط الضباب، ماذا ستفعل؟">
+        <button class="btn" onclick="showDeepResults2()">رؤية التحليل النهائي</button>
+    </div>
+
+    <div class="card hidden" id="deep-psy-q5">
+        <h2 style="color: var(--neon-blue);">اختبار الأبواب</h2>
+        <p>أمامك خمس أبواب ويجب أن تسلك باباً واحداً، اختر الباب الذي ستدخله:</p>
+        <div id="doors-container">
+            <button class="btn" onclick="showDoorResult(1)">🚪 باب للبحر</button>
+            <button class="btn" onclick="showDoorResult(2)">🚪 باب لمدينة ريفية</button>
+            <button class="btn" onclick="showDoorResult(3)">🚪 باب لمدينة خريفية</button>
+            <button class="btn" onclick="showDoorResult(4)">🚪 باب لمدينة ليلية هادئة</button>
+            <button class="btn" onclick="showDoorResult(5)">🚪 باب لمدينة يتساقط فيها الثلج</button>
+        </div>
+    </div>
+
+    <div class="card hidden" id="deep-psy-q6" style="text-align: right;">
+        <h2 style="color: var(--neon-blue); text-align: center;">اختبار ألغاز العقل الباطن</h2>
+        <p>1. <b>لغز القارب:</b> تخيّل أنك تبحر بقارب وبدأ يغرق بك، ورأيت قارباً آخر يعبر بجانبك فذهبت إليه لتنجو وصعدت على متنه..</p>
+        <input type="text" id="psy5-boat" placeholder="كم شخصاً رأيت على متن القارب؟">
+        
+        <p>2. <b>لغز الصحراء:</b> تم إنزالك على الشاطئ وإعطاؤك بعض الأمتعة، ورأيت صحراء قاحلة وبدأت تمشي فيها للبحث عن بشر، وكانت رحلتك متعبة جداً..</p>
+        <input type="text" id="psy5-shoes" placeholder="كم عدد أزواج الأحذية التي استخدمتها؟">
+        
+        <p>3. <b>لغز القصر:</b> دخلت قصراً ووصلت لغرفة الملك والملكة، وجدتهما ينظران لبعضهما..</p>
+        <input type="text" id="psy5-palace" placeholder="كيف كانت نظراتهم لبعض؟">
+        
+        <p>4. <b>لغز الدرج:</b> نزلت درج حلزوني مظلم ومر بجانبك شخص ذكرك بشخص تعرفه..</p>
+        <input type="text" id="psy5-stairs" placeholder="من هو هذا الشخص؟">
+        
+        <p>5. <b>لغز الوعاء:</b> وجدت وعاء عصير برتقال..</p>
+        <input type="text" id="psy5-juice" placeholder="إلى أي مدى كان ممتلئاً؟">
+        
+        <button class="btn" onclick="showDeepResults5()" style="width: 100%;">رؤية التحليل النهائي</button>
+    </div>
+
     <div class="card hidden" id="result-view">
         <h2 id="result-title">النتيجة</h2>
         <h1 id="score-header"></h1>
@@ -190,6 +238,7 @@
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(); osc.stop(audioCtx.currentTime + duration);
         }
+        
         const sounds = {
             click: () => playTone(600, 'sine', 0.1),
             correct: () => { playTone(800, 'sine', 0.1); setTimeout(()=>playTone(1200, 'sine', 0.1), 100); },
@@ -205,7 +254,7 @@
 
         const questionsBank = {
             iq_easy: [
-                { q: "ما هو العدد الذي يكمل السلسلة: 5، 10، 15، ...؟", options: ["20", "25", "30"], correct: 0 },
+                { q: "ما هو العدد الذي يكمل السلسلة: 5، 10، 15 ...؟", options: ["20", "25", "30"], correct: 0 },
                 { q: "أيهما أثقل: كيلو حديد أم كيلو قطن؟", options: ["الحديد", "القطن", "متساويان"], correct: 2 },
                 { q: "كم يوم في 4 أسابيع؟", options: ["24", "28", "30"], correct: 1 },
                 { q: "ما هو العدد الذي بعد 999؟", options: ["1000", "1100", "991"], correct: 0 },
@@ -275,17 +324,12 @@
         function goToMain() {
             let inputEl = document.getElementById('user-name');
             let inputVal = inputEl.value.trim();
-            
             if (inputVal === "") {
-                sounds.wrong();
-                inputEl.style.borderColor = "var(--wrong)";
-                inputEl.focus();
+                sounds.wrong(); inputEl.style.borderColor = "var(--wrong)"; inputEl.focus();
                 setTimeout(() => { inputEl.style.borderColor = "var(--neon-blue)"; }, 1000);
-                return; // منع الانتقال
+                return;
             }
-            
-            userName = inputVal;
-            sounds.click();
+            userName = inputVal; sounds.click();
             document.getElementById('name-view').classList.add('hidden');
             document.getElementById('main-view').classList.remove('hidden');
             document.getElementById('welcome-msg').innerText = "أهلاً بك يا " + userName;
@@ -299,22 +343,23 @@
             sounds.click();
             const container = document.getElementById('tests-buttons-container');
             container.innerHTML = "";
-            let btn1 = document.createElement('button'); btn1.className = 'btn level-btn'; btn1.innerText = "اختبار 1";
-            btn1.onclick = () => { sounds.click(); switchView('tests-list-view', 'deep-psy-q1'); };
-            container.appendChild(btn1);
-            let btn2 = document.createElement('button'); btn2.className = 'btn level-btn'; btn2.innerText = "اختبار 2";
-            btn2.onclick = () => { sounds.click(); switchView('tests-list-view', 'psy-traits-view'); };
-            container.appendChild(btn2);
+            let tests = ["اختبار 1", "اختبار 2", "اختبار 3", "اختبار 4", "اختبار 5"];
+            let views = ['deep-psy-q1', 'psy-traits-view', 'deep-psy-q4', 'deep-psy-q5', 'deep-psy-q6'];
+            
+            tests.forEach((t, i) => {
+                let btn = document.createElement('button'); btn.className = 'btn level-btn'; btn.innerText = t;
+                btn.onclick = () => { sounds.click(); switchView('tests-list-view', views[i]); };
+                container.appendChild(btn);
+            });
+
             document.getElementById('back-from-list').onclick = () => switchView('tests-list-view', 'main-view');
             document.getElementById('btn-back-to-list').onclick = () => switchView('result-view', 'tests-list-view');
             switchView('main-view', 'tests-list-view');
         }
 
         function listTests(levelKey) {
-            sounds.click();
-            currentLevelKey = levelKey;
-            const container = document.getElementById('tests-buttons-container');
-            container.innerHTML = "";
+            sounds.click(); currentLevelKey = levelKey;
+            const container = document.getElementById('tests-buttons-container'); container.innerHTML = "";
             const totalQuestions = questionsBank[levelKey].length;
             const numberOfTests = Math.ceil(totalQuestions / 10);
             for (let i = 0; i < numberOfTests; i++) {
@@ -327,19 +372,16 @@
         }
 
         function startSpecificTest(testIdx) {
-            sounds.click();
-            currentIdx = 0; score = 0; wrongAnswers = [];
+            sounds.click(); currentIdx = 0; score = 0; wrongAnswers = [];
             activeQuestions = questionsBank[currentLevelKey].slice(testIdx * 10, (testIdx * 10) + 10);
-            switchView('tests-list-view', 'quiz-view');
-            loadQuestion();
+            switchView('tests-list-view', 'quiz-view'); loadQuestion();
         }
 
         function loadQuestion() {
             let qData = activeQuestions[currentIdx];
             document.getElementById('question-text').innerText = qData.q;
             document.getElementById('q-num').innerText = currentIdx + 1;
-            let optionsDiv = document.getElementById('options-container');
-            optionsDiv.innerHTML = "";
+            let optionsDiv = document.getElementById('options-container'); optionsDiv.innerHTML = "";
             qData.options.forEach((opt, index) => {
                 let btn = document.createElement('button'); btn.className = 'btn'; btn.innerText = opt;
                 btn.onclick = () => checkAnswer(index, btn); optionsDiv.appendChild(btn);
@@ -355,12 +397,10 @@
         }
 
         function showResults() {
-            sounds.success();
-            document.getElementById('quiz-view').classList.add('hidden');
+            sounds.success(); document.getElementById('quiz-view').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             let analysisBox = document.getElementById('analysis-text');
-            let reportContainer = document.getElementById('report-container');
-            reportContainer.innerHTML = "";
+            let reportContainer = document.getElementById('report-container'); reportContainer.innerHTML = "";
             let percent = (score / activeQuestions.length) * 100;
             document.getElementById('score-header').innerText = "الدرجة: " + percent + "%";
             let msg = (percent >= 90) ? "هناك زويل جديد 🤍😅👌🏻" : (percent >= 80) ? "اي الذكاء الخارق ده برنس👌🏻😅" : (percent > 60) ? "جدع ياباشا☺️" : (percent == 50) ? "كويس بس شد حيلك المره الجايه☺️" : (percent >= 30) ? "عقلك رايح فين 🙄☺️" : "روح دور على عقلك وتعالى تاني 😂";
@@ -373,8 +413,7 @@
         }
 
         function showTraitsResults() {
-            sounds.success();
-            document.getElementById('psy-traits-view').classList.add('hidden');
+            sounds.success(); document.getElementById('psy-traits-view').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "التحليل النفسي 2";
             document.getElementById('analysis-text').innerHTML = `
@@ -397,8 +436,7 @@
         }
 
         function showDeepResults() {
-            sounds.success();
-            document.getElementById('deep-psy-q3').classList.add('hidden');
+            sounds.success(); document.getElementById('deep-psy-q3').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "التحليل النفسي 1";
             const animalMap = { "حصان": "العائلة", "خروف": "الحب", "بقرة": "العمل", "نمر": "عزة النفس", "خنزير": "المال" };
@@ -418,14 +456,82 @@
             document.getElementById('analysis-text').innerHTML = html;
         }
 
+        function showDeepResults2() {
+            sounds.success(); document.getElementById('deep-psy-q4').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            document.getElementById('score-header').innerText = "تحليل المواقف والمشاعر";
+            let html = `<div style="text-align:right"><h3>نتائج تحليلك يا ${userName}:</h3>`;
+            html += `<div class="psy-item">وصفك للبحر (<b>الحياة</b>): ${document.getElementById('psy-sea-v3').value}</div>`;
+            html += `<div class="psy-item">وصفك للغابة (<b>العائلة</b>): ${document.getElementById('psy-forest').value}</div>`;
+            html += `<div class="psy-item">وصفك للنورس (<b>النساء</b>): ${document.getElementById('psy-seagull').value}</div>`;
+            html += `<div class="psy-item">وصفك للخيول (<b>الرجال</b>): ${document.getElementById('psy-horses').value}</div>`;
+            html += `<div class="psy-item">تصرفك مع الجدار (<b>المشاكل</b>): ${document.getElementById('psy-wall-v3').value}</div>`;
+            html += `<div class="psy-item">تصرفك مع الجرة (<b>الشريك</b>): ${document.getElementById('psy-jar').value}</div>`;
+            html += `<div class="psy-item">تصرفك مع البيت (<b>الزواج</b>): ${document.getElementById('psy-house').value}</div>`;
+            html += `<div class="psy-item">مشاعرك في الضباب (<b>الموت</b>): ${document.getElementById('psy-fog').value}</div></div>`;
+            document.getElementById('analysis-text').innerHTML = html;
+        }
+
+        function showDoorResult(doorNum) {
+            sounds.success();
+            document.getElementById('deep-psy-q5').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            document.getElementById('score-header').innerText = "تحليل اختيار الباب";
+            
+            let doorData = [
+                {
+                    title: "باب البحر",
+                    content: "• <b>الحرية:</b> بالنسبة لك الحرية هي كل شيء فأنت تحتاج دائماً إلى مساحتك الخاصة التي تعبر فيها عن نفسك من دون قيود.<br>• <b>الاستقلالية:</b> تحب بناء نفسك بنفسك من دون الاعتماد على أحد، فأنت مستقل، وحتى أحياناً متمرد.<br>• <b>التأني:</b> تكره الاستعجال وتحب اتخاذ كامل وقتك في التحضير للأمور."
+                },
+                {
+                    title: "باب لمدينة ريفية",
+                    content: "• <b>الخصوصية:</b> أنت شخصية متحفظة وتحب التمتع بالخصوصية، إذ تفضل الاختلاء بنفسك أحياناً للتفكير ملياً بالأمور.<br>• <b>التفرد:</b> طريقة تفكيرك فريدة ولا تشبه الآخرين النمطيين.<br>• <b>العلاقات:</b> تتواصل جيداً مع أحبائك عند الانفتاح لهم والاعتياد عليهم."
+                },
+                {
+                    title: "باب لمدينة خريفية",
+                    content: "• <b>الحيوية:</b> شخصيتك مفعمة بالحماس والحيوية، فأنت تعشق الألوان وجمال الطبيعة.<br>• <b>الاجتماعية:</b> تحب التخالط مع الآخرين وتشكل جزءاً مهماً من مجتمعك.<br>• <b>الفضول:</b> يرضي فضولك اكتشاف كل ما هو جديد وتعلم الكثير من الآخرين."
+                },
+                {
+                    title: "باب لمدينة ليلية هادئة",
+                    content: "• <b>الغموض:</b> أنت شخصية غير متوقعة وفريدة من نوعها، لا يستطيع الآخرون فهمك أو توقع تصرفاتك.<br>• <b>الاندفاع:</b> تسعى إلى التطور في حياتك والانطلاق نحو المجهول.<br>• <b>العفوية:</b> تتصرف في معظم الأحيان من دون التفكير ملياً في عواقب الأمور."
+                },
+                {
+                    title: "باب لمدينة يتساقط فيها الثلج",
+                    content: "• <b>العمق:</b> أنت شخصية عميقة التفكير، إذ تبحث عن الهدوء للاختلاء بنفسك ومراجعة أفكارك.<br>• <b>الهدوء:</b> تكره الصخب واللامبالاة، فأنت تبحث عن معنى الحياة وتطرح على نفسك أسئلة كثيرة.<br>• <b>الراحة في الوحدة:</b> قد تقضي ساعات طويلة بمفردك، الأمر الذي يشعرك بالراحة."
+                }
+            ];
+
+            let selected = doorData[doorNum-1];
+            document.getElementById('analysis-text').innerHTML = `
+                <div style="text-align:right">
+                    <h3 style="color:var(--neon-blue)">لقد اخترت: ${selected.title}</h3>
+                    <div class="psy-item">${selected.content}</div>
+                </div>`;
+        }
+
+        // دالة عرض نتائج الاختبار الخامس الجديد
+        function showDeepResults5() {
+            sounds.success();
+            document.getElementById('deep-psy-q6').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            document.getElementById('score-header').innerText = "تحليل ألغاز العقل الباطن";
+            
+            let html = `<div style="text-align:right"><h3>نتائج تحليلك يا ${userName}:</h3>`;
+            html += `<div class="psy-item">عدد الأشخاص في القارب (<b>${document.getElementById('psy5-boat').value}</b>): يمثل عدد الأشخاص المخلصين لك والذين سيقفون بجانبك في الأزمات.</div>`;
+            html += `<div class="psy-item">عدد أزواج الأحذية (<b>${document.getElementById('psy5-shoes').value}</b>): يمثل عدد تجارب الحب في حياتك قبل أن تجد الشريك الحقيقي.</div>`;
+            html += `<div class="psy-item">نظرات الملك والملكة (<b>${document.getElementById('psy5-palace').value}</b>): تمثل نظرتك لعلاقتك مع شريك حياتك في المستقبل.</div>`;
+            html += `<div class="psy-item">الشخص على الدرج (<b>${document.getElementById('psy5-stairs').value}</b>): هو الشخص الذي لن تنساه أبداً مهما طال الزمن.</div>`;
+            html += `<div class="psy-item">امتلاء الوعاء (<b>${document.getElementById('psy5-juice').value}</b>): يمثل مقدار ما تعطيه وتضحي به من أجل الآخرين.</div></div>`;
+            
+            document.getElementById('analysis-text').innerHTML = html;
+        }
+
         function forceBackToHome() {
-            sounds.click();
-            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+            sounds.click(); document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
             document.getElementById('main-view').classList.remove('hidden');
-            deepAnimalOrder = [];
-            document.querySelectorAll('.order-btn').forEach(b => b.classList.remove('selected'));
+            deepAnimalOrder = []; document.querySelectorAll('.order-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('user-order-display').innerText = "";
-            document.getElementById('btn-to-psy2').classList.add('hidden');
+            if(document.getElementById('btn-to-psy2')) document.getElementById('btn-to-psy2').classList.add('hidden');
             document.querySelectorAll('input[type="text"]').forEach(input => { if(input.id !== 'user-name') input.value = ""; });
         }
     </script>
