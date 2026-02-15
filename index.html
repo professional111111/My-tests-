@@ -54,6 +54,7 @@
         input[type="text"] {
             background: transparent; border: 2px solid var(--neon-blue); border-radius: 10px;
             padding: 12px; color: white; width: 100%; margin-bottom: 15px; text-align: center; font-size: 1rem; outline: none;
+            transition: 0.3s;
         }
         
         .btn {
@@ -136,23 +137,23 @@
         <button class="btn hidden" id="btn-to-psy2" onclick="switchView('deep-psy-q1', 'deep-psy-q2')">المرحلة التالية</button>
     </div>
     <div class="card hidden" id="deep-psy-q2">
-        <h2 style="color: var(--neon-blue);">المرحلة 2: وصف الرموز</h2>
+        <h2 style="color: var(--neon-blue);">المرحلة 2: رمزية الأشياء</h2>
         <p>اكتب صفة واحدة تصف بها كل مما يلي:</p>
-        <input type="text" id="psy-dog" placeholder="الكلب (صفة واحدة)">
-        <input type="text" id="psy-cat" placeholder="القطة (صفة واحدة)">
-        <input type="text" id="psy-rat" placeholder="الفأر (صفة واحدة)">
-        <input type="text" id="psy-coffee" placeholder="القهوة (صفة واحدة)">
-        <input type="text" id="psy-sea" placeholder="البحر (صفة واحدة)">
+        <input type="text" id="psy-dog" placeholder="الكلب هو...">
+        <input type="text" id="psy-cat" placeholder="القطة هي...">
+        <input type="text" id="psy-rat" placeholder="الفأر هو...">
+        <input type="text" id="psy-coffee" placeholder="القهوة هي...">
+        <input type="text" id="psy-sea" placeholder="البحر هو...">
         <button class="btn" onclick="switchView('deep-psy-q2', 'deep-psy-q3')">المرحلة التالية</button>
     </div>
     <div class="card hidden" id="deep-psy-q3">
-        <h2 style="color: var(--neon-blue);">المرحلة 3: الألوان والأشخاص</h2>
-        <p>اكتب اسم شخص (تعرفه جيداً) يمثل لك كل لون من الألوان التالية:</p>
-        <input type="text" id="psy-yellow" placeholder="الأصفر (شخص لا تنساه أبداً)">
-        <input type="text" id="psy-orange" placeholder="البرتقالي (صديق وفي حقاً)">
-        <input type="text" id="psy-red" placeholder="الأحمر (شخص تحبه بصدق)">
-        <input type="text" id="psy-white" placeholder="الأبيض (توأم روحك)">
-        <input type="text" id="psy-green" placeholder="الأخضر (شخص ستتذكره دائماً)">
+        <h2 style="color: var(--neon-blue);">المرحلة 3: الألوان والناس</h2>
+        <p>اكتب اسم شخص يمثل لك كل لون من الألوان التالية:</p>
+        <input type="text" id="psy-yellow" placeholder="أصفر">
+        <input type="text" id="psy-orange" placeholder="برتقالي">
+        <input type="text" id="psy-red" placeholder="أحمر">
+        <input type="text" id="psy-white" placeholder="أبيض">
+        <input type="text" id="psy-green" placeholder="أخضر">
         <button class="btn" onclick="showDeepResults()">رؤية التحليل</button>
     </div>
 
@@ -196,7 +197,7 @@
             success: () => { [440, 554, 659, 880].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.2), i*150)); }
         };
 
-        let userName = "بطل";
+        let userName = "";
         let activeQuestions = [];
         let currentLevelKey = ""; 
         let currentIdx = 0, score = 0, wrongAnswers = [];
@@ -272,8 +273,18 @@
         };
 
         function goToMain() {
-            let input = document.getElementById('user-name').value;
-            if (input) userName = input;
+            let inputEl = document.getElementById('user-name');
+            let inputVal = inputEl.value.trim();
+            
+            if (inputVal === "") {
+                sounds.wrong();
+                inputEl.style.borderColor = "var(--wrong)";
+                inputEl.focus();
+                setTimeout(() => { inputEl.style.borderColor = "var(--neon-blue)"; }, 1000);
+                return; // منع الانتقال
+            }
+            
+            userName = inputVal;
             sounds.click();
             document.getElementById('name-view').classList.add('hidden');
             document.getElementById('main-view').classList.remove('hidden');
@@ -294,12 +305,8 @@
             let btn2 = document.createElement('button'); btn2.className = 'btn level-btn'; btn2.innerText = "اختبار 2";
             btn2.onclick = () => { sounds.click(); switchView('tests-list-view', 'psy-traits-view'); };
             container.appendChild(btn2);
-            
-            // ضبط زر الرجوع للتحليل النفسي ليعود للشاشة الرئيسية
             document.getElementById('back-from-list').onclick = () => switchView('tests-list-view', 'main-view');
-            // ضبط زر الرجوع في شاشة النتائج ليعود لقائمة الاختبارات النفسية
             document.getElementById('btn-back-to-list').onclick = () => switchView('result-view', 'tests-list-view');
-            
             switchView('main-view', 'tests-list-view');
         }
 
@@ -314,9 +321,7 @@
                 let btn = document.createElement('button'); btn.className = 'btn level-btn'; btn.innerText = `اختبار ${i + 1}`;
                 btn.onclick = () => startSpecificTest(i); container.appendChild(btn);
             }
-            // ضبط زر الرجوع في قائمة الاختبارات ليعود لقائمة المستويات
             document.getElementById('back-from-list').onclick = () => switchView('tests-list-view', 'levels-view');
-            // ضبط زر الرجوع في شاشة النتائج ليعود لقائمة الاختبارات لنفس المستوى
             document.getElementById('btn-back-to-list').onclick = () => switchView('result-view', 'tests-list-view');
             switchView('levels-view', 'tests-list-view');
         }
@@ -399,17 +404,17 @@
             const animalMap = { "حصان": "العائلة", "خروف": "الحب", "بقرة": "العمل", "نمر": "عزة النفس", "خنزير": "المال" };
             let html = `<div style="text-align:right"><h3>تحليلك الشخصي يا ${userName}:</h3>`;
             deepAnimalOrder.forEach((a, i) => html += `<div class="psy-item">مركز ${i+1}: ${a} (يدل على <b>${animalMap[a]}</b>)</div>`);
-            html += `<div class="psy-item">الكلب هو: <b>${document.getElementById('psy-dog').value}</b></div>`;
-            html += `<div class="psy-item">القطة هي: <b>${document.getElementById('psy-cat').value}</b></div>`;
-            html += `<div class="psy-item">الفأر هو: <b>${document.getElementById('psy-rat').value}</b></div>`;
-            html += `<div class="psy-item">القهوة هي: <b>${document.getElementById('psy-coffee').value}</b></div>`;
-            html += `<div class="psy-item">البحر هو: <b>${document.getElementById('psy-sea').value}</b></div>`;
+            html += `<div class="psy-item">الكلب هو: <b>${document.getElementById('psy-dog').value}</b> (يدل على وصفك لنفسك)</div>`;
+            html += `<div class="psy-item">القطة هي: <b>${document.getElementById('psy-cat').value}</b> (يدل على وصفك لشريك حياتك)</div>`;
+            html += `<div class="psy-item">الفأر هو: <b>${document.getElementById('psy-rat').value}</b> (يدل على وصفك لأعدائك)</div>`;
+            html += `<div class="psy-item">القهوة هي: <b>${document.getElementById('psy-coffee').value}</b> (يدل على نظرتك للجـنـس)</div>`;
+            html += `<div class="psy-item">البحر هو: <b>${document.getElementById('psy-sea').value}</b> (يدل على نظرتك لحياتك)</div>`;
             html += `<hr style="opacity:0.2">`;
-            html += `<div class="psy-item">الأصفر: <b>${document.getElementById('psy-yellow').value}</b></div>`;
-            html += `<div class="psy-item">البرتقالي: <b>${document.getElementById('psy-orange').value}</b></div>`;
-            html += `<div class="psy-item">الأحمر: <b>${document.getElementById('psy-red').value}</b></div>`;
-            html += `<div class="psy-item">الأبيض: <b>${document.getElementById('psy-white').value}</b></div>`;
-            html += `<div class="psy-item">الأخضر: <b>${document.getElementById('psy-green').value}</b></div></div>`;
+            html += `<div class="psy-item">الأصفر: <b>${document.getElementById('psy-yellow').value}</b> (شخص لا تنساه أبداً)</div>`;
+            html += `<div class="psy-item">البرتقالي: <b>${document.getElementById('psy-orange').value}</b> (صديق وفي حقاً)</div>`;
+            html += `<div class="psy-item">الأحمر: <b>${document.getElementById('psy-red').value}</b> (شخص تحبه بصدق)</div>`;
+            html += `<div class="psy-item">الأبيض: <b>${document.getElementById('psy-white').value}</b> (توأم روحك)</div>`;
+            html += `<div class="psy-item">الأخضر: <b>${document.getElementById('psy-green').value}</b> (شخص ستتذكره دائماً)</div></div>`;
             document.getElementById('analysis-text').innerHTML = html;
         }
 
