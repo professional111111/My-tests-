@@ -25,7 +25,6 @@
             overflow-x: hidden;
         }
 
-        /* اللوجو الجديد: عقل واقعي بتفاصيل أكثر مع الحفاظ على الأنميشن */
         .brain-logo {
             width: 100px;
             height: 100px;
@@ -146,7 +145,7 @@
         <input type="text" id="psy-rat" placeholder="الفأر هو...">
         <input type="text" id="psy-coffee" placeholder="القهوة هي...">
         <input type="text" id="psy-sea" placeholder="البحر هو...">
-        <button class="btn" onclick="switchView('deep-psy-q2', 'deep-psy-q3')">المرحلة التالية</button>
+        <button class="btn" onclick="validateAndSwitch('deep-psy-q2', 'deep-psy-q3')">المرحلة التالية</button>
     </div>
     <div class="card hidden" id="deep-psy-q3">
         <h2 style="color: var(--neon-blue);">المرحلة 3: الألوان والناس</h2>
@@ -252,6 +251,21 @@
         let currentIdx = 0, score = 0, wrongAnswers = [];
         let deepAnimalOrder = [];
 
+        // دالة التحقق
+        function checkInputs(containerId) {
+            const inputs = document.querySelectorAll(`#${containerId} input[type="text"]`);
+            for (let input of inputs) {
+                if (input.value.trim() === "") {
+                    sounds.wrong();
+                    input.style.borderColor = "var(--wrong)";
+                    input.focus();
+                    setTimeout(() => { input.style.borderColor = "var(--neon-blue)"; }, 2000);
+                    return false;
+                }
+            }
+            return true;
+        }
+
         const questionsBank = {
             iq_easy: [
                 { q: "ما هو العدد الذي يكمل السلسلة: 5، 10، 15 ...؟", options: ["20", "25", "30"], correct: 0 },
@@ -336,6 +350,11 @@
         }
 
         function switchView(from, to) { sounds.click(); document.getElementById(from).classList.add('hidden'); document.getElementById(to).classList.remove('hidden'); }
+        
+        function validateAndSwitch(from, to) {
+            if(checkInputs(from)) switchView(from, to);
+        }
+
         function showLevels() { switchView('main-view', 'levels-view'); }
         function backToMain() { switchView('levels-view', 'main-view'); }
 
@@ -413,9 +432,11 @@
         }
 
         function showTraitsResults() {
+            if(!checkInputs('psy-traits-view')) return;
             sounds.success(); document.getElementById('psy-traits-view').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "التحليل النفسي 2";
+            document.getElementById('report-container').innerHTML = ""; // تصفير الأخطاء
             document.getElementById('analysis-text').innerHTML = `
                 <div style="text-align:right">
                     <div class="psy-item">وصفك للحيوان 1 (<b>${document.getElementById('t-anim1').value}</b>): نظرتك لنفسك.</div>
@@ -436,9 +457,11 @@
         }
 
         function showDeepResults() {
+            if(!checkInputs('deep-psy-q3')) return;
             sounds.success(); document.getElementById('deep-psy-q3').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "التحليل النفسي 1";
+            document.getElementById('report-container').innerHTML = "";
             const animalMap = { "حصان": "العائلة", "خروف": "الحب", "بقرة": "العمل", "نمر": "عزة النفس", "خنزير": "المال" };
             let html = `<div style="text-align:right"><h3>تحليلك الشخصي يا ${userName}:</h3>`;
             deepAnimalOrder.forEach((a, i) => html += `<div class="psy-item">مركز ${i+1}: ${a} (يدل على <b>${animalMap[a]}</b>)</div>`);
@@ -457,9 +480,11 @@
         }
 
         function showDeepResults2() {
+            if(!checkInputs('deep-psy-q4')) return;
             sounds.success(); document.getElementById('deep-psy-q4').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "تحليل المواقف والمشاعر";
+            document.getElementById('report-container').innerHTML = "";
             let html = `<div style="text-align:right"><h3>نتائج تحليلك يا ${userName}:</h3>`;
             html += `<div class="psy-item">وصفك للبحر (<b>الحياة</b>): ${document.getElementById('psy-sea-v3').value}</div>`;
             html += `<div class="psy-item">وصفك للغابة (<b>العائلة</b>): ${document.getElementById('psy-forest').value}</div>`;
@@ -477,52 +502,31 @@
             document.getElementById('deep-psy-q5').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "تحليل اختيار الباب";
-            
+            document.getElementById('report-container').innerHTML = "";
             let doorData = [
-                {
-                    title: "باب البحر",
-                    content: "• <b>الحرية:</b> بالنسبة لك الحرية هي كل شيء فأنت تحتاج دائماً إلى مساحتك الخاصة التي تعبر فيها عن نفسك من دون قيود.<br>• <b>الاستقلالية:</b> تحب بناء نفسك بنفسك من دون الاعتماد على أحد، فأنت مستقل، وحتى أحياناً متمرد.<br>• <b>التأني:</b> تكره الاستعجال وتحب اتخاذ كامل وقتك في التحضير للأمور."
-                },
-                {
-                    title: "باب لمدينة ريفية",
-                    content: "• <b>الخصوصية:</b> أنت شخصية متحفظة وتحب التمتع بالخصوصية، إذ تفضل الاختلاء بنفسك أحياناً للتفكير ملياً بالأمور.<br>• <b>التفرد:</b> طريقة تفكيرك فريدة ولا تشبه الآخرين النمطيين.<br>• <b>العلاقات:</b> تتواصل جيداً مع أحبائك عند الانفتاح لهم والاعتياد عليهم."
-                },
-                {
-                    title: "باب لمدينة خريفية",
-                    content: "• <b>الحيوية:</b> شخصيتك مفعمة بالحماس والحيوية، فأنت تعشق الألوان وجمال الطبيعة.<br>• <b>الاجتماعية:</b> تحب التخالط مع الآخرين وتشكل جزءاً مهماً من مجتمعك.<br>• <b>الفضول:</b> يرضي فضولك اكتشاف كل ما هو جديد وتعلم الكثير من الآخرين."
-                },
-                {
-                    title: "باب لمدينة ليلية هادئة",
-                    content: "• <b>الغموض:</b> أنت شخصية غير متوقعة وفريدة من نوعها، لا يستطيع الآخرون فهمك أو توقع تصرفاتك.<br>• <b>الاندفاع:</b> تسعى إلى التطور في حياتك والانطلاق نحو المجهول.<br>• <b>العفوية:</b> تتصرف في معظم الأحيان من دون التفكير ملياً في عواقب الأمور."
-                },
-                {
-                    title: "باب لمدينة يتساقط فيها الثلج",
-                    content: "• <b>العمق:</b> أنت شخصية عميقة التفكير، إذ تبحث عن الهدوء للاختلاء بنفسك ومراجعة أفكارك.<br>• <b>الهدوء:</b> تكره الصخب واللامبالاة، فأنت تبحث عن معنى الحياة وتطرح على نفسك أسئلة كثيرة.<br>• <b>الراحة في الوحدة:</b> قد تقضي ساعات طويلة بمفردك، الأمر الذي يشعرك بالراحة."
-                }
+                { title: "باب البحر", content: "• <b>الحرية:</b> بالنسبة لك الحرية هي كل شيء...<br>• <b>الاستقلالية:</b> تحب بناء نفسك...<br>• <b>التأني:</b> تكره الاستعجال..." },
+                { title: "باب لمدينة ريفية", content: "• <b>الخصوصية:</b> أنت شخصية متحفظة...<br>• <b>التفرد:</b> طريقة تفكيرك فريدة...<br>• <b>العلاقات:</b> تتواصل جيداً..." },
+                { title: "باب لمدينة خريفية", content: "• <b>الحيوية:</b> شخصيتك مفعمة بالحماس...<br>• <b>الاجتماعية:</b> تحب التخالط...<br>• <b>الفضول:</b> يرضي فضولك..." },
+                { title: "باب لمدينة ليلية هادئة", content: "• <b>الغموض:</b> أنت شخصية غير متوقعة...<br>• <b>الاندفاع:</b> تسعى إلى التطور...<br>• <b>العفوية:</b> تتصرف بعفوية..." },
+                { title: "باب لمدينة يتساقط فيها الثلج", content: "• <b>العمق:</b> أنت شخصية عميقة التفكير...<br>• <b>الهدوء:</b> تكره الصخب...<br>• <b>الراحة في الوحدة:</b> قد تقضي ساعات بمفردك..." }
             ];
-
             let selected = doorData[doorNum-1];
-            document.getElementById('analysis-text').innerHTML = `
-                <div style="text-align:right">
-                    <h3 style="color:var(--neon-blue)">لقد اخترت: ${selected.title}</h3>
-                    <div class="psy-item">${selected.content}</div>
-                </div>`;
+            document.getElementById('analysis-text').innerHTML = `<div style="text-align:right"><h3 style="color:var(--neon-blue)">لقد اخترت: ${selected.title}</h3><div class="psy-item">${selected.content}</div></div>`;
         }
 
-        // تم تعديل التحليل هنا ليكون كما طلبت في رسالتك تماماً
         function showDeepResults5() {
+            if(!checkInputs('deep-psy-q6')) return;
             sounds.success();
             document.getElementById('deep-psy-q6').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "تحليل ألغاز العقل الباطن";
-            
+            document.getElementById('report-container').innerHTML = "";
             let html = `<div style="text-align:right"><h3>نتائج تحليلك يا ${userName}:</h3>`;
             html += `<div class="psy-item">1/ عدد الاشخاص الذين رأيتهم على القارب يمثل : عدد الاشخاص المخلصين الذين تملكهم. (<b>${document.getElementById('psy5-boat').value}</b>)</div>`;
             html += `<div class="psy-item">2/ عدد ازواج الاحذيه التي رايتها تمثل : عدد المرات التي احببت في حياتك ! (<b>${document.getElementById('psy5-shoes').value}</b>)</div>`;
             html += `<div class="psy-item">3/ حاله الملك والملكه تمثل : كيف تتخيل شريك حياتك معك. (<b>${document.getElementById('psy5-palace').value}</b>)</div>`;
             html += `<div class="psy-item">4/ الشخص الذي رايته في الدرج يمثل: هو الشخص الذي ستبقى تتذكره لاخر يوم في حياتك. (<b>${document.getElementById('psy5-stairs').value}</b>)</div>`;
             html += `<div class="psy-item">5/ الى اي مدى كان الوعاء ممتلئ بالعصير يمثل : كم تضحي انت لاجل من تحب ولاجل اصدقائك. (<b>${document.getElementById('psy5-juice').value}</b>)</div></div>`;
-            
             document.getElementById('analysis-text').innerHTML = html;
         }
 
@@ -533,6 +537,7 @@
             document.getElementById('user-order-display').innerText = "";
             if(document.getElementById('btn-to-psy2')) document.getElementById('btn-to-psy2').classList.add('hidden');
             document.querySelectorAll('input[type="text"]').forEach(input => { if(input.id !== 'user-name') input.value = ""; });
+            document.getElementById('report-container').innerHTML = "";
         }
     </script>
 </body>
