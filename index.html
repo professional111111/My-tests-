@@ -124,6 +124,7 @@
 
     <div class="card hidden" id="deep-psy-q1">
         <h2 style="color: var(--neon-blue);">المرحلة 1: ترتيب الأولويات</h2>
+        <p>رتب الحيوانات التالية حسب أهميتها في حياتك (اضغط بالترتيب):</p>
         <div class="order-box">
             <div class="order-btn" onclick="selectAnimal('حصان', this)">حصان</div>
             <div class="order-btn" onclick="selectAnimal('خروف', this)">خروف</div>
@@ -135,21 +136,23 @@
         <button class="btn hidden" id="btn-to-psy2" onclick="switchView('deep-psy-q1', 'deep-psy-q2')">المرحلة التالية</button>
     </div>
     <div class="card hidden" id="deep-psy-q2">
-        <h2 style="color: var(--neon-blue);">المرحلة 2: رمزية الأشياء</h2>
-        <input type="text" id="psy-dog" placeholder="الكلب هو...">
-        <input type="text" id="psy-cat" placeholder="القطة هي...">
-        <input type="text" id="psy-rat" placeholder="الفأر هو...">
-        <input type="text" id="psy-coffee" placeholder="القهوة هي...">
-        <input type="text" id="psy-sea" placeholder="البحر هو...">
+        <h2 style="color: var(--neon-blue);">المرحلة 2: وصف الرموز</h2>
+        <p>اكتب صفة واحدة تصف بها كل مما يلي:</p>
+        <input type="text" id="psy-dog" placeholder="الكلب (صفة واحدة)">
+        <input type="text" id="psy-cat" placeholder="القطة (صفة واحدة)">
+        <input type="text" id="psy-rat" placeholder="الفأر (صفة واحدة)">
+        <input type="text" id="psy-coffee" placeholder="القهوة (صفة واحدة)">
+        <input type="text" id="psy-sea" placeholder="البحر (صفة واحدة)">
         <button class="btn" onclick="switchView('deep-psy-q2', 'deep-psy-q3')">المرحلة التالية</button>
     </div>
     <div class="card hidden" id="deep-psy-q3">
-        <h2 style="color: var(--neon-blue);">المرحلة 3: الألوان والناس</h2>
-        <input type="text" id="psy-yellow" placeholder="أصفر">
-        <input type="text" id="psy-orange" placeholder="برتقالي">
-        <input type="text" id="psy-red" placeholder="أحمر">
-        <input type="text" id="psy-white" placeholder="أبيض">
-        <input type="text" id="psy-green" placeholder="أخضر">
+        <h2 style="color: var(--neon-blue);">المرحلة 3: الألوان والأشخاص</h2>
+        <p>اكتب اسم شخص (تعرفه جيداً) يمثل لك كل لون من الألوان التالية:</p>
+        <input type="text" id="psy-yellow" placeholder="الأصفر (شخص لا تنساه أبداً)">
+        <input type="text" id="psy-orange" placeholder="البرتقالي (صديق وفي حقاً)">
+        <input type="text" id="psy-red" placeholder="الأحمر (شخص تحبه بصدق)">
+        <input type="text" id="psy-white" placeholder="الأبيض (توأم روحك)">
+        <input type="text" id="psy-green" placeholder="الأخضر (شخص ستتذكره دائماً)">
         <button class="btn" onclick="showDeepResults()">رؤية التحليل</button>
     </div>
 
@@ -199,7 +202,6 @@
         let currentIdx = 0, score = 0, wrongAnswers = [];
         let deepAnimalOrder = [];
 
-        // بنك الأسئلة (كما هو)
         const questionsBank = {
             iq_easy: [
                 { q: "ما هو العدد الذي يكمل السلسلة: 5، 10، 15، ...؟", options: ["20", "25", "30"], correct: 0 },
@@ -287,13 +289,17 @@
             const container = document.getElementById('tests-buttons-container');
             container.innerHTML = "";
             let btn1 = document.createElement('button'); btn1.className = 'btn level-btn'; btn1.innerText = "اختبار 1";
-            btn1.onclick = () => switchView('tests-list-view', 'deep-psy-q1');
+            btn1.onclick = () => { sounds.click(); switchView('tests-list-view', 'deep-psy-q1'); };
             container.appendChild(btn1);
             let btn2 = document.createElement('button'); btn2.className = 'btn level-btn'; btn2.innerText = "اختبار 2";
-            btn2.onclick = () => switchView('tests-list-view', 'psy-traits-view');
+            btn2.onclick = () => { sounds.click(); switchView('tests-list-view', 'psy-traits-view'); };
             container.appendChild(btn2);
+            
+            // ضبط زر الرجوع للتحليل النفسي ليعود للشاشة الرئيسية
             document.getElementById('back-from-list').onclick = () => switchView('tests-list-view', 'main-view');
+            // ضبط زر الرجوع في شاشة النتائج ليعود لقائمة الاختبارات النفسية
             document.getElementById('btn-back-to-list').onclick = () => switchView('result-view', 'tests-list-view');
+            
             switchView('main-view', 'tests-list-view');
         }
 
@@ -308,7 +314,9 @@
                 let btn = document.createElement('button'); btn.className = 'btn level-btn'; btn.innerText = `اختبار ${i + 1}`;
                 btn.onclick = () => startSpecificTest(i); container.appendChild(btn);
             }
+            // ضبط زر الرجوع في قائمة الاختبارات ليعود لقائمة المستويات
             document.getElementById('back-from-list').onclick = () => switchView('tests-list-view', 'levels-view');
+            // ضبط زر الرجوع في شاشة النتائج ليعود لقائمة الاختبارات لنفس المستوى
             document.getElementById('btn-back-to-list').onclick = () => switchView('result-view', 'tests-list-view');
             switchView('levels-view', 'tests-list-view');
         }
@@ -350,7 +358,6 @@
             reportContainer.innerHTML = "";
             let percent = (score / activeQuestions.length) * 100;
             document.getElementById('score-header').innerText = "الدرجة: " + percent + "%";
-            
             let msg = (percent >= 90) ? "هناك زويل جديد 🤍😅👌🏻" : (percent >= 80) ? "اي الذكاء الخارق ده برنس👌🏻😅" : (percent > 60) ? "جدع ياباشا☺️" : (percent == 50) ? "كويس بس شد حيلك المره الجايه☺️" : (percent >= 30) ? "عقلك رايح فين 🙄☺️" : "روح دور على عقلك وتعالى تاني 😂";
             analysisBox.innerHTML = `يا ${userName}، ${msg}`;
             if (wrongAnswers.length > 0) {
@@ -390,22 +397,31 @@
             document.getElementById('result-view').classList.remove('hidden');
             document.getElementById('score-header').innerText = "التحليل النفسي 1";
             const animalMap = { "حصان": "العائلة", "خروف": "الحب", "بقرة": "العمل", "نمر": "عزة النفس", "خنزير": "المال" };
-            let html = `<div style="text-align:right">`;
+            let html = `<div style="text-align:right"><h3>تحليلك الشخصي يا ${userName}:</h3>`;
             deepAnimalOrder.forEach((a, i) => html += `<div class="psy-item">مركز ${i+1}: ${a} (يدل على <b>${animalMap[a]}</b>)</div>`);
-            html += `<div class="psy-item">البحر (حياتك): <b>${document.getElementById('psy-sea').value}</b></div></div>`;
+            html += `<div class="psy-item">الكلب هو: <b>${document.getElementById('psy-dog').value}</b></div>`;
+            html += `<div class="psy-item">القطة هي: <b>${document.getElementById('psy-cat').value}</b></div>`;
+            html += `<div class="psy-item">الفأر هو: <b>${document.getElementById('psy-rat').value}</b></div>`;
+            html += `<div class="psy-item">القهوة هي: <b>${document.getElementById('psy-coffee').value}</b></div>`;
+            html += `<div class="psy-item">البحر هو: <b>${document.getElementById('psy-sea').value}</b></div>`;
+            html += `<hr style="opacity:0.2">`;
+            html += `<div class="psy-item">الأصفر: <b>${document.getElementById('psy-yellow').value}</b></div>`;
+            html += `<div class="psy-item">البرتقالي: <b>${document.getElementById('psy-orange').value}</b></div>`;
+            html += `<div class="psy-item">الأحمر: <b>${document.getElementById('psy-red').value}</b></div>`;
+            html += `<div class="psy-item">الأبيض: <b>${document.getElementById('psy-white').value}</b></div>`;
+            html += `<div class="psy-item">الأخضر: <b>${document.getElementById('psy-green').value}</b></div></div>`;
             document.getElementById('analysis-text').innerHTML = html;
         }
 
         function forceBackToHome() {
             sounds.click();
-            // إخفاء كل الصفحات وإظهار الرئيسية فقط
             document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
             document.getElementById('main-view').classList.remove('hidden');
-            // تصفير بيانات التحليل النفسي للبدء من جديد عند العودة
             deepAnimalOrder = [];
             document.querySelectorAll('.order-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('user-order-display').innerText = "";
             document.getElementById('btn-to-psy2').classList.add('hidden');
+            document.querySelectorAll('input[type="text"]').forEach(input => { if(input.id !== 'user-name') input.value = ""; });
         }
     </script>
 </body>
