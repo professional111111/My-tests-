@@ -74,7 +74,7 @@
         <h2 id="result-title">النتيجة النهائية</h2>
         <h1 id="score-display"></h1>
         <div id="report-container"></div>
-        <button class="btn" onclick="goToHome()" style="border-color: var(--neon-purple); margin-top: 20px;">العودة للصفحة الرئيسية</button>
+        <button class="btn" onclick="backToHome()" style="border-color: var(--neon-purple); margin-top: 20px;">العودة للصفحة الرئيسية</button>
     </div>
 
     <script>
@@ -99,9 +99,12 @@
             currentIdx = 0;
             score = 0;
             wrongAnswers = [];
+            
+            // إخفاء كل الشاشات وإظهار شاشة الأسئلة فقط
             document.getElementById('main-view').classList.add('hidden');
             document.getElementById('result-view').classList.add('hidden'); 
             document.getElementById('quiz-view').classList.remove('hidden');
+            
             loadQuestion();
         }
 
@@ -109,8 +112,10 @@
             let qData = questionsBank[currentType][currentIdx];
             document.getElementById('question-text').innerText = qData.q;
             document.getElementById('q-number').innerText = currentIdx + 1;
+            
             let optionsDiv = document.getElementById('options-container');
             optionsDiv.innerHTML = "";
+            
             qData.options.forEach((opt, index) => {
                 let button = document.createElement('button');
                 button.className = 'btn';
@@ -123,6 +128,7 @@
         function handleAnswer(choice, btn) {
             const buttons = document.querySelectorAll('.btn');
             buttons.forEach(b => b.style.pointerEvents = 'none');
+            
             let qData = questionsBank[currentType][currentIdx];
 
             if (currentType === 'iq') {
@@ -150,6 +156,7 @@
         function showResults() {
             document.getElementById('quiz-view').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
+            
             let scoreText = currentType === 'iq' ? `نسبة ذكائك: ${(score / questionsBank.iq.length) * 100}%` : "تم تحليل الشخصية";
             document.getElementById('score-display').innerText = scoreText;
             
@@ -163,12 +170,16 @@
             document.getElementById('report-container').innerHTML = reportHtml;
         }
 
-        // دالة الرجوع الفوري اللي طلبتها
-        function goToHome() {
-            // إخفاء واجهة النتيجة وإظهار الرئيسية فوراً
+        // الدالة الأكيدة للرجوع
+        function backToHome() {
+            // 1. إخفاء شاشة النتيجة
             document.getElementById('result-view').classList.add('hidden');
+            // 2. إخفاء شاشة الأسئلة (للاحتياط)
+            document.getElementById('quiz-view').classList.add('hidden');
+            // 3. إظهار الشاشة الرئيسية
             document.getElementById('main-view').classList.remove('hidden');
-            // تصفير البيانات للاختبار الجاي
+            
+            // 4. تصفير العدادات
             currentIdx = 0;
             score = 0;
             wrongAnswers = [];
@@ -176,4 +187,3 @@
     </script>
 </body>
 </html>
-
